@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulator zarade — Srbija 2025/2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --surface2: #f8f9fb;
+    --border: #e2e5ea;
+    --border2: #cbd0d8;
+    --text: #1a1d23;
+    --text2: #5a6070;
+    --text3: #9198a8;
+    --accent: #2563eb;
+    --accent-light: #eff4ff;
+    --success: #16a34a;
+    --success-light: #f0fdf4;
+    --danger: #dc2626;
+    --danger-light: #fef2f2;
+    --warning: #d97706;
+    --warning-light: #fffbeb;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  body {
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+  }
+
+  .container { max-width: 720px; margin: 0 auto; }
+
+  header {
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+  header span { font-size: 13px; color: var(--text3); font-family: 'IBM Plex Mono', monospace; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 12px 18px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+  }
+
+  .card-body { padding: 18px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 12px; font-weight: 500; color: var(--text2); }
+  .field input {
+    padding: 9px 12px;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--text);
+    background: var(--surface);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    width: 100%;
+  }
+  .field input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  }
+  .field .hint { font-size: 11px; color: var(--text3); }
+
+  .mode-group { display: flex; gap: 0; border: 1px solid var(--border2); border-radius: var(--radius-sm); overflow: hidden; width: fit-content; }
+  .mode-btn {
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text2);
+    font-family: 'IBM Plex Sans', sans-serif;
+    transition: background 0.12s, color 0.12s;
+    border-right: 1px solid var(--border2);
+  }
+  .mode-btn:last-child { border-right: none; }
+  .mode-btn.active { background: var(--accent); color: white; }
+  .mode-btn:hover:not(.active) { background: var(--surface2); }
+
+  .main-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 14px;
+  }
+  .main-input-wrap input {
+    flex: 1;
+    padding: 11px 14px;
+    border: 1.5px solid var(--accent);
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    font-size: 18px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500;
+    color: var(--text);
+    background: var(--surface);
+  }
+  .main-input-wrap input:focus { outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+  .main-input-wrap .currency {
+    padding: 11px 14px;
+    background: var(--accent);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .warn-box {
+    display: none;
+    margin-top: 10px;
+    padding: 9px 13px;
+    background: var(--warning-light);
+    border: 1px solid #fcd34d;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    color: var(--warning);
+  }
+
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .metric {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 13px 14px;
+  }
+  .metric.accent { background: var(--success-light); border-color: #bbf7d0; }
+  .metric-label { font-size: 11px; color: var(--text3); margin-bottom: 5px; font-weight: 500; }
+  .metric-value { font-size: 17px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; color: var(--text); }
+  .metric.accent .metric-value { color: var(--success); }
+
+  .breakdown { margin-bottom: 12px; }
+  .breakdown-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 8px 0 5px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2px;
+  }
+  .brow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 4px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+  }
+  .brow:last-child { border-bottom: none; }
+  .brow.total {
+    font-weight: 600;
+    background: var(--surface2);
+    padding: 8px 8px;
+    border-radius: var(--radius-sm);
+    margin-top: 3px;
+    border: none;
+  }
+  .brow .blabel { color: var(--text2); }
+  .brow .bamount { font-family: 'IBM Plex Mono', monospace; font-weight: 500; }
+  .brow .bamount.neg { color: var(--danger); }
+  .brow .bamount.pos { color: var(--success); }
+
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn {
+    padding: 10px 22px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    font-family: 'IBM Plex Sans', sans-serif;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-secondary { background: var(--surface); color: var(--text2); border: 1px solid var(--border2); }
+  .btn-secondary:hover { background: var(--surface2); }
+  .btn-print { background: #1e293b; color: white; }
+  .btn-print:hover { opacity: 0.85; }
+
+  .params-toggle {
+    font-size: 12px;
+    color: var(--text3);
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: 'IBM Plex Sans', sans-serif;
+    padding: 0;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .params-toggle:hover { color: var(--text2); }
+  .params-box {
+    display: none;
+    margin-top: 10px;
+    padding: 12px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .params-box.open { display: block; }
+  .params-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px; }
+  .param-row { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; }
+  .param-row .pl { color: var(--text2); }
+  .param-row .pv { font-family: 'IBM Plex Mono', monospace; font-weight: 500; }
+
+  footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 24px;
+  }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .no-print { display: none !important; }
+    .card { box-shadow: none; border: 1px solid #ddd; }
+  }
+
+  @media (max-width: 520px) {
+    .metrics { grid-template-columns: 1fr 1fr; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .mode-btn { padding: 8px 12px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Kalkulator zarade</h1>
+    <span>Srbija 2025/2026</span>
+  </header>
+
+  <!-- Podaci -->
+  <div class="card no-print">
+    <div class="card-header">Podaci o zaposlenom</div>
+    <div class="card-body">
+      <div class="grid-3">
+        <div class="field">
+          <label>Ime i prezime</label>
+          <input type="text" id="inp-ime" placeholder="opciono">
+        </div>
+        <div class="field">
+          <label>Naziv poslodavca</label>
+          <input type="text" id="inp-firma" placeholder="opciono">
+        </div>
+        <div class="field">
+          <label>Obračunski period</label>
+          <input type="text" id="inp-period" value="">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unos -->
+  <div class="card no-print">
+    <div class="card-header">Unos</div>
+    <div class="card-body">
+      <div class="mode-group">
+        <button class="mode-btn active" onclick="setMode('neto')">Iz neto</button>
+        <button class="mode-btn" onclick="setMode('bruto')">Iz bruto 1</button>
+        <button class="mode-btn" onclick="setMode('troskovi')">Iz troškova</button>
+      </div>
+
+      <div class="main-input-wrap">
+        <input type="number" id="inp-main" value="80000" oninput="recalc()" />
+        <div class="currency">RSD</div>
+      </div>
+
+      <div style="margin-top:12px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <div class="field" style="flex:0 0 auto;">
+          <label>Poresko oslobođenje</label>
+          <input type="number" id="inp-osl" value="34221" oninput="recalc()" style="width:160px;">
+          <span class="hint">2025: 34.221 RSD</span>
+        </div>
+      </div>
+
+      <div class="warn-box" id="warn-box"></div>
+
+      <button class="params-toggle" onclick="document.getElementById('params-box').classList.toggle('open')">
+        ▸ Stope i parametri
+      </button>
+      <div class="params-box" id="params-box">
+        <div class="params-grid">
+          <div class="param-row"><span class="pl">PIO (zaposleni)</span><span class="pv">14,00%</span></div>
+          <div class="param-row"><span class="pl">PIO (poslodavac)</span><span class="pv">10,00%</span></div>
+          <div class="param-row"><span class="pl">Zdravstvo (zaposleni)</span><span class="pv">5,15%</span></div>
+          <div class="param-row"><span class="pl">Zdravstvo (poslodavac)</span><span class="pv">5,15%</span></div>
+          <div class="param-row"><span class="pl">Nezaposlenost (zaposleni)</span><span class="pv">0,75%</span></div>
+          <div class="param-row"><span class="pl">Nezaposlenost (poslodavac)</span><span class="pv">0,00%</span></div>
+          <div class="param-row"><span class="pl">Porez na dohodak</span><span class="pv">10,00%</span></div>
+          <div class="param-row"><span class="pl">Min. osnovica</span><span class="pv">51.297 RSD</span></div>
+          <div class="param-row"><span class="pl">Max. osnovica</span><span class="pv">732.820 RSD</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rezultati -->
+  <div class="card" id="results-card">
+    <div class="card-header" id="results-header">Rezultat obračuna</div>
+    <div class="card-body">
+
+      <div class="metrics">
+        <div class="metric accent">
+          <div class="metric-label">Neto zarada</div>
+          <div class="metric-value" id="r-neto">—</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Bruto 1</div>
+          <div class="metric-value" id="r-bruto1">—</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Ukupan trošak (Bruto 2)</div>
+          <div class="metric-value" id="r-bruto2">—</div>
+        </div>
+      </div>
+
+      <div class="breakdown">
+        <div class="breakdown-title">Na teret zaposlenog</div>
+        <div class="brow"><span class="blabel">Bruto zarada</span><span class="bamount" id="r-b1"></span></div>
+        <div class="brow"><span class="blabel">PIO (14%)</span><span class="bamount neg" id="r-pio-z"></span></div>
+        <div class="brow"><span class="blabel">Zdravstvo (5,15%)</span><span class="bamount neg" id="r-zdrav-z"></span></div>
+        <div class="brow"><span class="blabel">Nezaposlenost (0,75%)</span><span class="bamount neg" id="r-nez-z"></span></div>
+        <div class="brow"><span class="blabel">Porez na dohodak (10%)</span><span class="bamount neg" id="r-porez"></span></div>
+        <div class="brow total"><span class="blabel">= Neto zarada</span><span class="bamount pos" id="r-neto2"></span></div>
+      </div>
+
+      <div class="breakdown">
+        <div class="breakdown-title">Na teret poslodavca</div>
+        <div class="brow"><span class="blabel">PIO (10%)</span><span class="bamount neg" id="r-pio-p"></span></div>
+        <div class="brow"><span class="blabel">Zdravstvo (5,15%)</span><span class="bamount neg" id="r-zdrav-p"></span></div>
+        <div class="brow total"><span class="blabel">= Ukupan trošak (Bruto 2)</span><span class="bamount" id="r-bruto2b"></span></div>
+      </div>
+
+      <div class="breakdown">
+        <div class="breakdown-title">Procentualni odnosi</div>
+        <div class="brow"><span class="blabel">Dažbine / neto plata</span><span class="bamount" id="r-pct1"></span></div>
+        <div class="brow"><span class="blabel">Dažbine / bruto plata</span><span class="bamount" id="r-pct2"></span></div>
+        <div class="brow total"><span class="blabel">Dažbine / ukupan trošak</span><span class="bamount" id="r-pct3"></span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Dugmad -->
+  <div class="btn-row no-print">
+    <button class="btn btn-primary" onclick="recalc()">Obračunaj</button>
+    <button class="btn btn-print" onclick="window.print()">Štampaj / PDF</button>
+    <button class="btn btn-secondary" onclick="reset()">Poništi</button>
+  </div>
+
+  <footer>Obračun je informativan. Stope važeće za 2025/2026. godinu.</footer>
+
+</div>
+
+<script>
+const S = {
+  pio_z:0.14, zdrav_z:0.0515, nez_z:0.0075,
+  pio_p:0.10, zdrav_p:0.0515,
+  porez:0.10,
+  min_os:51297, max_os:732820
+};
+const TZ = S.pio_z + S.zdrav_z + S.nez_z;
+const TP = S.pio_p + S.zdrav_p;
+let mode = 'neto';
+
+// Postavi default period
+const now = new Date();
+const meseci = ['Januar','Februar','Mart','April','Maj','Jun','Jul','Avgust','Septembar','Oktobar','Novembar','Decembar'];
+document.getElementById('inp-period').value = meseci[now.getMonth()] + ' ' + now.getFullYear();
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['neto','bruto','troskovi'][i] === m);
+  });
+  recalc();
+}
+
+function fmt(n) {
+  return Math.round(n).toLocaleString('sr-RS') + ' RSD';
+}
+function fmtN(n) {
+  return Math.round(n).toLocaleString('sr-RS');
+}
+
+function calc(bruto1, osl) {
+  const os = Math.min(Math.max(bruto1, S.min_os), S.max_os);
+  const pio_z   = os * S.pio_z;
+  const zdrav_z = os * S.zdrav_z;
+  const nez_z   = os * S.nez_z;
+  const uk_z    = pio_z + zdrav_z + nez_z;
+  const por_os  = Math.max(0, bruto1 - osl);
+  const porez   = por_os * S.porez;
+  const neto    = bruto1 - uk_z - porez;
+  const pio_p   = os * S.pio_p;
+  const zdrav_p = os * S.zdrav_p;
+  const uk_p    = pio_p + zdrav_p;
+  const bruto2  = bruto1 + uk_p;
+  return {bruto1,neto,porez,pio_z,zdrav_z,nez_z,uk_z,pio_p,zdrav_p,uk_p,bruto2,os};
+}
+
+function recalc() {
+  const val = parseFloat(document.getElementById('inp-main').value) || 0;
+  const osl = parseFloat(document.getElementById('inp-osl').value) || 0;
+  let r;
+  if (mode === 'neto') {
+    const b = (val - osl * S.porez) / (1 - TZ - S.porez);
+    r = calc(b, osl);
+  } else if (mode === 'bruto') {
+    r = calc(val, osl);
+  } else {
+    r = calc(val / (1 + TP), osl);
+  }
+
+  const wb = document.getElementById('warn-box');
+  if (r.os === S.min_os && r.bruto1 < S.min_os) {
+    wb.style.display = 'block';
+    wb.textContent = '⚠ Bruto je ispod minimalne osnovice — doprinosi se računaju na ' + fmtN(S.min_os) + ' RSD.';
+  } else if (r.os === S.max_os) {
+    wb.style.display = 'block';
+    wb.textContent = '⚠ Prekoračena maksimalna osnovica — doprinosi na ' + fmtN(S.max_os) + ' RSD.';
+  } else {
+    wb.style.display = 'none';
+  }
+
+  document.getElementById('r-neto').textContent   = fmtN(r.neto);
+  document.getElementById('r-bruto1').textContent = fmtN(r.bruto1);
+  document.getElementById('r-bruto2').textContent = fmtN(r.bruto2);
+
+  document.getElementById('r-b1').textContent      = fmt(r.bruto1);
+  document.getElementById('r-pio-z').textContent   = '− ' + fmt(r.pio_z);
+  document.getElementById('r-zdrav-z').textContent = '− ' + fmt(r.zdrav_z);
+  document.getElementById('r-nez-z').textContent   = '− ' + fmt(r.nez_z);
+  document.getElementById('r-porez').textContent   = '− ' + fmt(r.porez);
+  document.getElementById('r-neto2').textContent   = fmt(r.neto);
+
+  document.getElementById('r-pio-p').textContent   = '+ ' + fmt(r.pio_p);
+  document.getElementById('r-zdrav-p').textContent = '+ ' + fmt(r.zdrav_p);
+  document.getElementById('r-bruto2b').textContent = fmt(r.bruto2);
+
+  const dadz = r.bruto2 - r.neto;
+  document.getElementById('r-pct1').textContent = Math.round(dadz/r.neto*100) + '%';
+  document.getElementById('r-pct2').textContent = Math.round(dadz/r.bruto1*100) + '%';
+  document.getElementById('r-pct3').textContent = Math.round(dadz/r.bruto2*100) + '%';
+}
+
+function reset() {
+  document.getElementById('inp-main').value = '80000';
+  document.getElementById('inp-osl').value = '34221';
+  document.getElementById('inp-ime').value = '';
+  document.getElementById('inp-firma').value = '';
+  setMode('neto');
+  recalc();
+}
+
+recalc();
+</script>
+</body>
+</html>
